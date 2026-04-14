@@ -5,9 +5,10 @@ GameState tracks the mutable runtime state of the bot.
 """
 
 import logging
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from threading import Lock
-from typing import Optional
+from typing import Generator, Optional
 
 log = logging.getLogger("civ4bot.state")
 
@@ -58,6 +59,40 @@ class GameState:
         with self._lock:
             self.last_action = description
             self.last_action_time = datetime.now(tz=timezone.utc)
+
+    @contextmanager
+    def acquire_processing(self) -> Generator[bool, None, None]:
+        """Context manager that atomically claims the processing slot.
+
+        Yields ``True`` if the slot was successfully acquired (caller should
+        proceed) or ``False`` if another turn is already in progress (caller
+        should abort).  The slot is always released on exit.
+
+        Usage::
+
+            with state.acquire_processing() as acquired:
+                if not acquired:
+                    return {"success": False, "reason": "Already processing a turn."}
+                ...  # do work
+        """
+        with self._lock:
+            if self.processing:
+                acquired = False
+            else:
+                self.processing = True
+                acquired = True
+        try:
+            yield acquired
+        finally:
+            if acquired:
+                with self._lock:
+                    self.processing = False
+
+    def increment_turn(self) -> int:
+        """Atomically increment the turn counter and return the new value."""
+        with self._lock:
+            self.turn += 1
+            return self.turn
 
     def to_dict(self) -> dict:
         """Return a serialisable snapshot of the current state."""

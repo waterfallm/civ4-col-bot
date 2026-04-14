@@ -26,14 +26,14 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# Initialise game state from config and wire it into the routes module.
+# Initialise game state from config and attach it to app.state so that route
+# dependencies can retrieve it via request.app.state.game_state.
 # ---------------------------------------------------------------------------
-_game_state = GameState(bot_enabled=config.get("bot_enabled", True))
-routes.set_state(_game_state)
+app.state.game_state = GameState(bot_enabled=config.get("bot_enabled", True))
 
 app.include_router(routes.router)
 
 log.info(
     "civ4-col-bot API server ready — bot_enabled=%s",
-    _game_state.bot_enabled,
+    app.state.game_state.bot_enabled,
 )

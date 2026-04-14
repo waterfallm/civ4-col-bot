@@ -48,15 +48,12 @@ def next_turn(state: GameState) -> dict:
         log.warning("next_turn rejected: %s", reason)
         return {"success": False, "reason": reason}
 
-    # Acquire the processing flag atomically.
-    with state._lock:
-        if state.processing:
+    with state.acquire_processing() as acquired:
+        if not acquired:
             reason = "Already processing a turn."
             log.warning("next_turn rejected: %s", reason)
             return {"success": False, "reason": reason}
-        state.processing = True
 
-    try:
         log.info("Processing next turn (current turn=%d)…", state.turn)
 
         # ----------------------------------------------------------------
@@ -65,14 +62,9 @@ def next_turn(state: GameState) -> dict:
         # ----------------------------------------------------------------
         time.sleep(_PROCESSING_DELAY)
 
-        with state._lock:
-            state.turn += 1
-            new_turn = state.turn
+        new_turn = state.increment_turn()
 
-        state.record_action(f"next_turn → turn {new_turn}")
-        log.info("next_turn complete. New turn=%d", new_turn)
-        return {"success": True, "turn": new_turn, "timestamp": timestamp}
+    state.record_action(f"next_turn → turn {new_turn}")
+    log.info("next_turn complete. New turn=%d", new_turn)
+    return {"success": True, "turn": new_turn, "timestamp": timestamp}
 
-    finally:
-        with state._lock:
-            state.processing = False
