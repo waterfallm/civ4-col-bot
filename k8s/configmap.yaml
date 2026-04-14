@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: civ4bot-config
+  namespace: civ4bot
+  labels:
+    app.kubernetes.io/name: civ4bot
+data:
+  config.json: |
+    {
+      "bot_enabled": true,
+      "server": {
+        "host": "0.0.0.0",
+        "port": 8000
+      },
+      "logging": {
+        "level": "INFO"
+      }
+    }

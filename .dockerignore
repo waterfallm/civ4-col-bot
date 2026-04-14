@@ -1,0 +1,50 @@
+# Version control
+.git/
+.gitignore
+
+# Tests
+tests/
+
+# Kubernetes manifests (not needed inside the image)
+k8s/
+
+# Steam Deck scripts (not needed inside the image)
+steamdeck/
+
+# Documentation
+readme.md
+*.md
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI / deploy scripts
+deploy.sh
+.github/
+
+# Civ IV game assets (not part of the API server)
+Assets/
+config.yaml

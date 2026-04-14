@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: civ4bot
+  namespace: civ4bot
+  labels:
+    app.kubernetes.io/name: civ4bot
+  annotations:
+    # Traefik is the default ingress controller in k3s
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: civ4bot.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: civ4bot
+                port:
+                  number: 80
