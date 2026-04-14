@@ -1,0 +1,10 @@
+# civ4-col-bot configuration
+# ---------------------------
+# Place this file alongside your mod's Assets/Python directory, or anywhere
+# accessible by your CvEventManager.py (adjust the path in that file if needed).
+
+# Master toggle — set to false to disable the bot entirely.
+bot_enabled: true
+
+# Logging level: DEBUG, INFO, WARNING, ERROR
+log_level: INFO
