@@ -17,7 +17,7 @@ Transfer the scripts from this directory to your Steam Deck:
 
 ```bash
 # From your PC (replace with your Steam Deck's IP)
-scp trigger_next_turn.sh toggle_bot.sh check_status.sh deck@steamdeck.local:~/civ4bot/
+scp trigger_next_turn.sh toggle_bot.sh check_status.sh deck@steamdeck.local:~/civ4-col-bot/steamdeck/
 ```
 
 Or clone the repo directly on the Steam Deck:
@@ -31,9 +31,9 @@ cd ~/civ4-col-bot/steamdeck
 ## 2. Make scripts executable
 
 ```bash
-chmod +x ~/civ4bot/trigger_next_turn.sh
-chmod +x ~/civ4bot/toggle_bot.sh
-chmod +x ~/civ4bot/check_status.sh
+chmod +x ~/civ4-col-bot/steamdeck/trigger_next_turn.sh
+chmod +x ~/civ4-col-bot/steamdeck/toggle_bot.sh
+chmod +x ~/civ4-col-bot/steamdeck/check_status.sh
 ```
 
 ---
@@ -74,7 +74,7 @@ All scripts respect the `CIV4BOT_URL` environment variable:
 
 ```bash
 export CIV4BOT_URL=http://192.168.1.100
-~/civ4bot/trigger_next_turn.sh
+~/civ4-col-bot/steamdeck/trigger_next_turn.sh
 ```
 
 ---
@@ -83,7 +83,7 @@ export CIV4BOT_URL=http://192.168.1.100
 
 1. Open **Steam** in Desktop Mode
 2. Click **Add a Game** → **Add a Non-Steam Game...**
-3. Click **Browse** and navigate to `~/civ4bot/trigger_next_turn.sh`
+3. Click **Browse** and navigate to `~/civ4-col-bot/steamdeck/trigger_next_turn.sh`
 4. Click **Add Selected Programs**
 5. Repeat for `toggle_bot.sh` and `check_status.sh`
 6. (Optional) Set a custom icon for each shortcut
@@ -114,14 +114,14 @@ While in Desktop Mode, open a terminal and run:
 
 ```bash
 # Check bot is reachable
-~/civ4bot/check_status.sh
+~/civ4-col-bot/steamdeck/check_status.sh
 
 # Trigger a turn manually
-~/civ4bot/trigger_next_turn.sh
+~/civ4-col-bot/steamdeck/trigger_next_turn.sh
 
 # Toggle the bot off, then on
-~/civ4bot/toggle_bot.sh
-~/civ4bot/toggle_bot.sh
+~/civ4-col-bot/steamdeck/toggle_bot.sh
+~/civ4-col-bot/steamdeck/toggle_bot.sh
 ```
 
 ---
@@ -137,7 +137,7 @@ While in Desktop Mode, open a terminal and run:
 2. **Check DNS**: Try accessing by IP directly:
    ```bash
    export CIV4BOT_URL=http://192.168.1.100
-   ~/civ4bot/check_status.sh
+   ~/civ4-col-bot/steamdeck/check_status.sh
    ```
 3. **Check the pod**: On the Pi cluster:
    ```bash
