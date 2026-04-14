@@ -1,46 +1,133 @@
 # civ4-col-bot
 
-A rule-based bot for playing **Civilization IV: Colonization** (modded), built on top of Civ IV's Python modding interface.
+A rule-based bot for playing **Civilization IV: Colonization** (modded), controlled via a lightweight **REST API** so any remote process can drive the game.
 
 ## What is this?
 
-`civ4-col-bot` hooks into Civ IV Colonization's built-in Python scripting system (`CvEventManager` / `CvGameInterface`) to automate in-game decisions according to a set of user-defined rules. The bot runs inside the game process itself — no external process required.
+`civ4-col-bot` exposes an HTTP API (built with [FastAPI](https://fastapi.tiangolo.com/)) that lets you control the Civ IV Colonization game from a **remote process** — no direct hooking into Civ IV's Python internals required.  The API server manages game state and triggers in-game actions.  Later it will communicate with the game process via named pipes, memory reading, or the game's own Python interface.
 
 ## Project structure
 
 ```
-Assets/Python/          ← Drop this into your mod's Assets/Python directory
-├── CvEventManager.py   ← Override that hooks the bot into the game event loop
-└── bot/
-    ├── __init__.py
-    └── turn.py         ← next_turn() and future turn-management logic
-config.yaml             ← Bot settings (enable/disable, future rule parameters)
+civ4-col-bot/
+├── readme.md              ← This file
+├── .gitignore
+├── requirements.txt       ← Python dependencies
+├── config.json            ← Bot configuration (host, port, logging, bot toggle)
+├── src/
+│   ├── main.py            ← FastAPI app entry point
+│   ├── config.py          ← Config loader (reads config.json)
+│   ├── api/
+│   │   └── routes.py      ← API route definitions
+│   └── game/
+│       ├── state.py       ← GameState class
+│       └── actions.py     ← next_turn() and future game actions
+└── tests/
+    └── test_next_turn.py  ← pytest tests
 ```
+
+The `Assets/Python/` directory contains the legacy in-process Civ IV hook (from the earlier prototype) and is kept for reference.
 
 ## Installation
 
-1. Copy the contents of `Assets/Python/` into your mod's `Assets/Python/` directory (e.g. `Mods/<YourMod>/Assets/Python/`).
-2. Edit `config.yaml` to enable the bot (`bot_enabled: true`) and set any other options.
-3. Launch Civ IV Colonization and load your mod — the bot will automatically hook into the game's event loop.
+```bash
+pip install -r requirements.txt
+```
 
-> **Note:** If your mod already has a `CvEventManager.py`, merge the relevant sections rather than replacing the file outright.
+## Running the server
 
-## Requirements
+```bash
+uvicorn src.main:app --reload
+```
 
-- Civilization IV: Colonization (with Python modding support)
-- Python 2.x (as shipped with Civ IV)
+The API will be available at `http://localhost:8000`.  Interactive docs are at `http://localhost:8000/docs`.
 
 ## Configuration
 
-See `config.yaml` for all available settings. The key toggle is:
+Edit `config.json` to change the server address, port, or logging level:
 
-```yaml
-bot_enabled: true   # Set to false to disable the bot entirely
+```json
+{
+  "bot_enabled": true,
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000
+  },
+  "logging": {
+    "level": "INFO"
+  }
+}
+```
+
+## API endpoints
+
+### `GET /status`
+Returns the current bot status.
+
+```bash
+curl http://localhost:8000/status
+```
+
+Example response:
+```json
+{
+  "bot_enabled": true,
+  "turn": 3,
+  "last_action": "next_turn → turn 3",
+  "last_action_time": "2024-01-01T12:00:00+00:00",
+  "processing": false
+}
+```
+
+---
+
+### `POST /next-turn`
+Triggers the "next turn" action.  Increments the turn counter and (in future) communicates with the game process.
+
+```bash
+curl -X POST http://localhost:8000/next-turn
+```
+
+Example response:
+```json
+{
+  "status": "ok",
+  "turn": 4,
+  "timestamp": "2024-01-01T12:00:05+00:00"
+}
+```
+
+Returns HTTP **409** if the bot is disabled or a turn is already processing.
+
+---
+
+### `POST /bot/enable`
+Enable the bot.
+
+```bash
+curl -X POST http://localhost:8000/bot/enable
+```
+
+---
+
+### `POST /bot/disable`
+Disable the bot.
+
+```bash
+curl -X POST http://localhost:8000/bot/disable
+```
+
+## Running tests
+
+```bash
+pytest tests/ -v
 ```
 
 ## Roadmap
 
-- [x] Project scaffold and `next_turn` function
+- [x] FastAPI server scaffold with `/next-turn`, `/status`, `/bot/enable`, `/bot/disable`
+- [x] GameState class with turn counter, enable/disable, and double-trigger protection
+- [x] pytest suite for next_turn logic
+- [ ] Actual Civ IV game integration (named pipe / memory / Python interface)
 - [ ] Rule engine for production, exploration, and diplomacy decisions
-- [ ] City management logic
-- [ ] Trade and economics rules
+- [ ] City management and trade route logic
